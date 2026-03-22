@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>ComputerServiceX | Servicios Técnicos & Licencias</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+    }
+
+    body {
+      background: #f4f9fe;
+      color: #0a2a3b;
+      scroll-behavior: smooth;
+    }
+
+    /* SPLASH SCREEN - PANTALLA DE CARGA CIRCULAR */
+    .splash-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #0b2b3b 0%, #144d64 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .splash-screen.hide {
+      opacity: 0;
+      visibility: hidden;
+    }
+    
+    .splash-content {
+      text-align: center;
+      animation: fadeInUp 0.6s ease;
+    }
+    
+    .splash-logo {
+      width: 140px;
+      height: 140px;
+      margin: 0 auto 25px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+      animation: pulseGlow 1.5s infinite alternate;
+    }
+    
+    .splash-logo img {
+      width: 110px;
+      height: 110px;
+      object-fit: contain;
+      border-radius: 50%;
+    }
+    
+    /* Loader circular */
+    .loader-container {
+      margin-top: 25px;
+      display: flex;
+      justify-content: center;
+    }
+    
+    .circular-loader {
+      width: 60px;
+      height: 60px;
+      position: relative;
+    }
+    
+    .circular-loader svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+    
+    .circular-loader circle {
+      fill: none;
+      stroke: #ffb347;
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-dasharray: 283;
+      stroke-dashoffset: 283;
+      animation: spin 1.2s linear infinite;
+    }
+    
+    .circular-loader .bg-circle {
+      stroke: rgba(255,255,255,0.3);
+      stroke-dasharray: 283;
+      stroke-dashoffset: 0;
+      animation: none;
+    }
+    
+    .loader-text {
+      margin-top: 18px;
+      color: white;
+      font-weight: 600;
+      letter-spacing: 1px;
+      font-size: 1rem;
+    }
+    
+    @keyframes spin {
+      0% {
+        stroke-dashoffset: 283;
+      }
+      100% {
+        stroke-dashoffset: 0;
+      }
+    }
+    
+    @keyframes pulseGlow {
+      0% {
+        box-shadow: 0 5px 20px rgba(255,180,70,0.4);
+        transform: scale(0.98);
+      }
+      100% {
+        box-shadow: 0 15px 40px rgba(255,180,70,0.8);
+        transform: scale(1.02);
+      }
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Header & navegación con logo */
+    .top-bar {
+      background: #0b2b3b;
+      color: white;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .logo-img {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: white;
+      padding: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    
+    .logo-text h1 {
+      font-size: 1.7rem;
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, #FFFFFF, #b9e2f5);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      line-height: 1.2;
+    }
+    
+    .logo-text span {
+      font-size: 0.8rem;
+      color: #9ac9e0;
+      display: block;
+    }
+    
+    .cart-icon {
+      background: #1f4e64;
+      padding: 8px 20px;
+      border-radius: 60px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    .cart-icon:hover {
+      background: #266c88;
+      transform: scale(1.02);
+    }
+    #cartCount {
+      background: #ffb347;
+      color: #1e2f3a;
+      border-radius: 40px;
+      padding: 2px 10px;
+      font-weight: bold;
+    }
+
+    /* Hero sección */
+    .hero {
+      background: linear-gradient(115deg, #eef5fa 0%, #ffffff 100%);
+      padding: 3rem 2rem;
+      text-align: center;
+      border-bottom: 2px solid rgba(0,120,150,0.2);
+    }
+    .hero h2 {
+      font-size: 2.2rem;
+      color: #0c4e6e;
+    }
+    .hero p {
+      max-width: 650px;
+      margin: 12px auto 0;
+      color: #2c5a70;
+    }
+
+    /* Contenedor productos / servicios */
+    .services-container {
+      max-width: 1400px;
+      margin: 50px auto;
+      padding: 0 25px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 40px;
+    }
+
+    .service-card {
+      background: white;
+      border-radius: 32px;
+      width: 320px;
+      overflow: hidden;
+      transition: all 0.25s ease;
+      box-shadow: 0 20px 30px -12px rgba(0, 60, 80, 0.15);
+      cursor: pointer;
+      border: 1px solid rgba(72, 187, 224, 0.2);
+      display: flex;
+      flex-direction: column;
+    }
+    .service-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 28px 38px -16px rgba(16, 100, 120, 0.3);
+    }
+
+    .card-img {
+      height: 180px;
+      background: #eef2f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+    .card-img img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      transition: transform 0.2s;
+    }
+    .service-card:hover .card-img img {
+      transform: scale(1.02);
+    }
+
+    .card-info {
+      padding: 1.5rem 1.2rem 1.8rem;
+      text-align: center;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .card-info h3 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #0f4c5f;
+    }
+    .description {
+      font-size: 0.85rem;
+      color: #4b6f82;
+      margin: 10px 0;
+      line-height: 1.4;
+      text-align: left;
+      background: #f8fafc;
+      padding: 8px 12px;
+      border-radius: 16px;
+    }
+    .description ul {
+      margin-left: 18px;
+      margin-top: 5px;
+    }
+    .description li {
+      margin: 4px 0;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #1f7a5a;
+      margin: 12px 0 8px;
+      letter-spacing: -0.5px;
+    }
+    .price small {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #2c7a5e;
+    }
+    .btn-add {
+      background: #0f6b7c;
+      border: none;
+      color: white;
+      padding: 12px 20px;
+      width: 90%;
+      font-weight: bold;
+      border-radius: 50px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.2s;
+      margin-top: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      align-self: center;
+    }
+    .btn-add:hover {
+      background: #0c8aa3;
+      transform: scale(0.98);
+    }
+
+    /* Carrito flotante / panel */
+    .cart-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 30, 40, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: flex;
+      justify-content: flex-end;
+      visibility: hidden;
+      opacity: 0;
+      transition: 0.25s;
+    }
+    .cart-overlay.open {
+      visibility: visible;
+      opacity: 1;
+    }
+    .cart-panel {
+      background: #ffffff;
+      width: 380px;
+      height: 100%;
+      overflow-y: auto;
+      padding: 1.5rem;
+      box-shadow: -10px 0 25px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+    }
+    .cart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #e2edf2;
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+    }
+    .close-cart {
+      background: none;
+      border: none;
+      font-size: 1.8rem;
+      cursor: pointer;
+      color: #4b6e7e;
+    }
+    .cart-items {
+      flex: 1;
+    }
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed #cbdde6;
+    }
+    .cart-item-info {
+      font-weight: 500;
+    }
+    .cart-item-price {
+      color: #1f7a5a;
+      font-weight: bold;
+    }
+    .remove-item {
+      background: none;
+      border: none;
+      color: #c25d5d;
+      font-size: 1.2rem;
+      margin-left: 12px;
+      cursor: pointer;
+    }
+    .cart-total {
+      margin-top: 20px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      text-align: right;
+      border-top: 2px solid #aacbd9;
+      padding-top: 15px;
+    }
+    .btn-checkout {
+      background: #25a36f;
+      color: white;
+      font-weight: bold;
+      font-size: 1.1rem;
+      border: none;
+      padding: 14px;
+      border-radius: 50px;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-checkout:hover {
+      background: #1e8b5e;
+    }
+    .empty-cart {
+      text-align: center;
+      color: #6e8b9c;
+      padding: 40px 0;
+    }
+
+    footer {
+      background: #09222e;
+      color: #bcd4e0;
+      text-align: center;
+      padding: 24px;
+      margin-top: 30px;
+      font-size: 0.85rem;
+    }
+
+    /* Ocultar contenido principal mientras carga */
+    .main-content {
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+    
+    .main-content.visible {
+      opacity: 1;
+    }
+
+    @media (max-width: 680px) {
+      .services-container {
+        gap: 25px;
+      }
+      .cart-panel {
+        width: 100%;
+      }
+      .hero h2 {
+        font-size: 1.7rem;
+      }
+      .service-card {
+        width: 280px;
+      }
+      .logo-img {
+        width: 38px;
+        height: 38px;
+      }
+      .logo-text h1 {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SPLASH SCREEN CON CARGA CIRCULAR DE 8 SEGUNDOS -->
+<div id="splashScreen" class="splash-screen">
+  <div class="splash-content">
+    <div class="splash-logo">
+      <img id="splashLogoImg" src="https://i.ibb.co/xSCYVKym/unnamed-1.jpg" alt="ComputerServiceX Logo" onerror="this.src='https://img.icons8.com/color/240/000000/laptop--v1.png';">
+    </div>
+    <div class="loader-container">
+      <div class="circular-loader">
+        <svg viewBox="0 0 100 100">
+          <circle class="bg-circle" cx="50" cy="50" r="45"></circle>
+          <circle class="progress-circle" cx="50" cy="50" r="45" style="animation: spin 1.2s linear infinite; stroke-dashoffset: 283; stroke-dasharray: 283;"></circle>
+        </svg>
+      </div>
+    </div>
+    <div class="loader-text">Cargando servicios técnicos...</div>
+  </div>
+</div>
+
+<!-- CONTENIDO PRINCIPAL (oculto hasta que termine la carga) -->
+<div id="mainContent" class="main-content">
+  <div class="top-bar">
+    <div class="logo">
+      <img id="headerLogo" class="logo-img" src="https://i.ibb.co/xSCYVKym/unnamed-1.jpg" alt="Logo" onerror="this.src='https://img.icons8.com/color/240/000000/laptop--v1.png';">
+      <div class="logo-text">
+        <h1>⚡ ComputerServiceX</h1>
+        <span>Mantenimiento · Formateo · Asesoría · Licencias</span>
+      </div>
+    </div>
+    <div class="cart-icon" id="openCartBtn">
+      🛒 Carrito <span id="cartCount">0</span>
+    </div>
+  </div>
+
+  <section class="hero">
+    <h2>💻 Servicios técnicos profesionales + software original</h2>
+    <p>Mantenimiento, formateo, asesoría en hardware y licencias genuinas. Precios en CLP, transferencia bancaria.</p>
+  </section>
+
+  <div class="services-container" id="productsContainer">
+    <!-- Los productos se inyectarán dinámicamente con JS -->
+  </div>
+
+  <footer>
+    🖥️ ComputerServiceX - Servicio técnico especializado + Licencias originales con instalación incluida<br>
+    📍 Transferencia bancaria | Soporte post-venta | Asesoría personalizada
+  </footer>
+</div>
+
+<!-- Panel carrito -->
+<div id="cartOverlay" class="cart-overlay">
+  <div class="cart-panel">
+    <div class="cart-header">
+      <h2>📦 Tu pedido</h2>
+      <button class="close-cart" id="closeCartBtn">✖</button>
+    </div>
+    <div id="cartItemsList" class="cart-items">
+      <div class="empty-cart">🛍️ Aún no agregaste productos</div>
+    </div>
+    <div id="cartTotalPanel" class="cart-total">Total: $0</div>
+    <button id="checkoutBtn" class="btn-checkout">💬 Finalizar compra → WhatsApp</button>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ---------- CATÁLOGO COMPLETO: Servicios técnicos + licencias originales ----------
+    const PRODUCTS = [
+      {
+        id: "mantenimiento_pc",
+        name: "Mantenimiento PC Torre & Notebook",
+        price: 20000,
+        imgUrl: "https://img.icons8.com/color/240/000000/laptop--v1.png",
+        alt: "Mantenimiento preventivo PC",
+        description: "✅ Limpieza profunda interna\n✅ Aspirado y soplado seguro\n✅ Revisión de ventiladores\n✅ Cambio de pasta térmica"
+      },
+      {
+        id: "formateo_completo",
+        name: "Formateo + Sistema + Programas",
+        price: 30000,
+        imgUrl: "https://img.icons8.com/fluency/240/000000/format.png",
+        alt: "Formateo completo PC",
+        description: "✅ Formateo completo\n✅ SO a elección (Windows/Linux)\n✅ Programas esenciales (Office, navegador, antivirus)\n✅ Mantenimiento completo + optimización drivers"
+      },
+      {
+        id: "asesoria_tecnologica",
+        name: "Asesoría Tecnológica",
+        price: 30000,
+        imgUrl: "https://img.icons8.com/color/240/000000/advice.png",
+        alt: "Asesoría hardware y gaming",
+        description: "✅ Asesoramiento hardware: componentes, marcas\n✅ Consolas de videojuegos: recomendaciones\n✅ Guía personalizada para compra o mejora\n✅ Soporte para elegir según necesidad"
+      },
+      {
+        id: "win11pro_instalacion",
+        name: "Windows 11 Pro + Servicio instalación",
+        price: 19990,
+        imgUrl: "https://www.licenciasoriginales.cl/wp-content/uploads/2024/09/Windows-11-Pro.webp",
+        alt: "Windows 11 Pro licencia original",
+        description: "Licencia original + instalación profesional y activación."
+      },
+      {
+        id: "office2024_pro",
+        name: "Microsoft Office 2024 Profesional",
+        price: 18990,
+        imgUrl: "https://tulicencias.com/cdn-cgi/image/width=1144,height=1144,fit=contain,quality=90,format=webp,onerror=redirect,metadata=none/wp-content/uploads/2024/10/office-2024-professional-plus-new.jpg",
+        alt: "Microsoft Office 2024 Professional Plus",
+        description: "Suite completa: Word, Excel, PowerPoint, Outlook. Instalación incluida."
+      }
+    ];
+
+    let cart = [];
+
+    // DATOS BANCARIOS ACTUALIZADOS (Mercado Pago, Cuenta Vista)
+    const BANK_DATA = {
+      name: "Luis Eduardo Jaque Soto",
+      rut: "20.258.164-1",
+      accountType: "Mercado Pago - Cuenta Vista",
+      accountNumber: "1041259901",
+      email: "luis.eduardojaques@gmail.com"
+    };
+
+    const formatPrice = (price) => {
+      return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(price);
+    };
+
+    const saveCartToLocal = () => {
+      localStorage.setItem('computerServiceX_cart', JSON.stringify(cart));
+    };
+
+    const loadCartFromLocal = () => {
+      const stored = localStorage.getItem('computerServiceX_cart');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) cart = parsed;
+        } catch(e) { console.warn(e); }
+      }
+      updateCartUI();
+    };
+
+    const addToCart = (product) => {
+      cart.push({ id: product.id, name: product.name, price: product.price });
+      saveCartToLocal();
+      updateCartUI();
+      const btnTemp = document.querySelector(`.service-card[data-id='${product.id}'] .btn-add`);
+      if (btnTemp) {
+        const originalText = btnTemp.innerText;
+        btnTemp.innerText = '✓ Agregado';
+        setTimeout(() => { if(btnTemp) btnTemp.innerText = originalText; }, 1000);
+      }
+    };
+
+    const removeFromCart = (index) => {
+      cart.splice(index, 1);
+      saveCartToLocal();
+      updateCartUI();
+    };
+
+    const updateCartUI = () => {
+      const cartCountSpan = document.getElementById('cartCount');
+      if (cartCountSpan) cartCountSpan.innerText = cart.length;
+      
+      const cartItemsDiv = document.getElementById('cartItemsList');
+      const cartTotalDiv = document.getElementById('cartTotalPanel');
+      if (!cartItemsDiv) return;
+      
+      if (cart.length === 0) {
+        cartItemsDiv.innerHTML = `<div class="empty-cart">🛍️ Aún no agregaste productos</div>`;
+        if (cartTotalDiv) cartTotalDiv.innerHTML = `Total: $0`;
+        return;
+      }
+      
+      let itemsHtml = '';
+      let total = 0;
+      cart.forEach((item, idx) => {
+        total += item.price;
+        itemsHtml += `
+          <div class="cart-item">
+            <div class="cart-item-info">
+              <strong>${escapeHtml(item.name)}</strong><br>
+              <span class="cart-item-price">${formatPrice(item.price)}</span>
+            </div>
+            <button class="remove-item" data-index="${idx}">🗑️</button>
+          </div>
+        `;
+      });
+      cartItemsDiv.innerHTML = itemsHtml;
+      if (cartTotalDiv) cartTotalDiv.innerHTML = `Total: ${formatPrice(total)}`;
+      
+      document.querySelectorAll('.remove-item').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = parseInt(btn.getAttribute('data-index'));
+          if (!isNaN(idx)) removeFromCart(idx);
+          e.stopPropagation();
+        });
+      });
+    };
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+      });
+    }
+
+    const generateWhatsAppMessage = () => {
+      if (cart.length === 0) {
+        alert("🛒 Agrega al menos un producto antes de finalizar la compra.");
+        return null;
+      }
+      let serviciosList = "";
+      cart.forEach((item, idx) => {
+        serviciosList += `${idx+1}. ${item.name} - ${formatPrice(item.price)}\n`;
+      });
+      const total = cart.reduce((sum, item) => sum + item.price, 0);
+      const totalFormatted = formatPrice(total);
+      
+      return `🛒 *COMPRA COMPUTERSERVICEX* 🛒\n\n` +
+              `*Servicios seleccionados:*\n${serviciosList}\n` +
+              `*Total a pagar:* ${totalFormatted}\n\n` +
+              `💳 *DATOS PARA TRANSFERENCIA BANCARIA* 💳\n` +
+              `▪️ Titular: ${BANK_DATA.name}\n` +
+              `▪️ RUT: ${BANK_DATA.rut}\n` +
+              `▪️ ${BANK_DATA.accountType}\n` +
+              `▪️ Número de cuenta: ${BANK_DATA.accountNumber}\n` +
+              `▪️ Correo: ${BANK_DATA.email}\n\n` +
+              `✅ Una vez realizada la transferencia, envía el comprobante para coordinar el servicio técnico o entrega de licencias.\n` +
+              `¡Gracias por preferir ComputerServiceX!`;
+    };
+
+    const handleCheckout = () => {
+      const mensaje = generateWhatsAppMessage();
+      if (!mensaje) return;
+      const numeroWhatsApp = '56930517409';
+      window.open(`https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`, '_blank');
+    };
+
+    const renderProducts = () => {
+      const container = document.getElementById('productsContainer');
+      if (!container) return;
+      container.innerHTML = '';
+      
+      PRODUCTS.forEach(product => {
+        const card = document.createElement('div');
+        card.className = 'service-card';
+        card.setAttribute('data-id', product.id);
+        
+        let descHtml = '';
+        if (product.description) {
+          if (product.description.includes('✅')) {
+            const lines = product.description.split('\n').filter(l => l.trim());
+            let items = '';
+            lines.forEach(line => {
+              const cleanLine = line.replace('✅', '').trim();
+              if (cleanLine) items += `<li>✅ ${cleanLine}</li>`;
+            });
+            descHtml = `<div class="description"><ul>${items}</ul></div>`;
+          } else {
+            descHtml = `<div class="description">${product.description}</div>`;
+          }
+        }
+        
+        card.innerHTML = `
+          <div class="card-img">
+            <img src="${product.imgUrl}" alt="${product.alt}" loading="lazy" onerror="this.src='https://img.icons8.com/color/240/000000/maintenance.png';">
+          </div>
+          <div class="card-info">
+            <h3>${escapeHtml(product.name)}</h3>
+            ${descHtml}
+            <div class="price">${formatPrice(product.price)} <small>CLP</small></div>
+            <button class="btn-add">➕ Agregar al carrito</button>
+          </div>
+        `;
+        const addBtn = card.querySelector('.btn-add');
+        addBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          addToCart(product);
+        });
+        container.appendChild(card);
+      });
+    };
+
+    const initCartOverlay = () => {
+      const overlay = document.getElementById('cartOverlay');
+      const openBtn = document.getElementById('openCartBtn');
+      const closeBtn = document.getElementById('closeCartBtn');
+      const checkoutButton = document.getElementById('checkoutBtn');
+      
+      if (openBtn) openBtn.addEventListener('click', () => overlay.classList.add('open'));
+      if (closeBtn) closeBtn.addEventListener('click', () => overlay.classList.remove('open'));
+      if (checkoutButton) checkoutButton.addEventListener('click', () => handleCheckout());
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('open'); });
+    };
+
+    // ---------- SISTEMA DE CARGA: 8 SEGUNDOS + MOSTRAR CONTENIDO ----------
+    const splashScreen = document.getElementById('splashScreen');
+    const mainContent = document.getElementById('mainContent');
+    
+    setTimeout(() => {
+      splashScreen.classList.add('hide');
+      mainContent.classList.add('visible');
+      
+      setTimeout(() => {
+        if (splashScreen && splashScreen.parentNode) {
+          splashScreen.style.display = 'none';
+        }
+      }, 800);
+    }, 8000);
+
+    const initializeApp = () => {
+      renderProducts();
+      loadCartFromLocal();
+      initCartOverlay();
+    };
+    
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeApp);
+    } else {
+      initializeApp();
+    }
+  })();
+</script>
+</body>
+</html>
